@@ -48,18 +48,22 @@ exports.getData = async (req, res, next) => {
 
     // check rank change for each holding
     const holdingsWithRankChange = holdingsWithIsNew.map((holding) => {
-      const previousHolding = holdingsForPrevDate.find(
+      const previousHoldingIndex = holdingsForPrevDate.findIndex(
         (prevHolding) => prevHolding.stockName === holding.stockName
       );
 
-      if (!previousHolding) {
+      if (previousHoldingIndex === -1) {
         return { ...holding, RankChange: "up" };
       }
 
-      if (previousHolding.Weights < holding.Weights) {
-        return { ...holding, RankChange: "up" };
-      } else if (previousHolding.Weights > holding.Weights) {
+      const currentHoldingIndex = holdingsForDate.findIndex(
+        (item) => item.stockName === holding.stockName
+      );
+
+      if (previousHoldingIndex < currentHoldingIndex) {
         return { ...holding, RankChange: "down" };
+      } else if (previousHoldingIndex > currentHoldingIndex) {
+        return { ...holding, RankChange: "up" };
       } else {
         return { ...holding, RankChange: "same" };
       }
